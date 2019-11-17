@@ -210,6 +210,10 @@ class NoteBodyViewer extends Component {
 							msg = msg.split(':');
 							const resourceId = msg[1];
 							if (this.props.onMarkForDownload) this.props.onMarkForDownload({ resourceId: resourceId });
+						} else if (msg.indexOf('scrollPositionUpdated:') === 0) {
+							msg = msg.split(':');
+							const scrollPosition = Number(msg[1]);
+							if (this.props.onScrollPositionUpdated) this.props.onScrollPositionUpdated({ scrollPosition: scrollPosition });
 						} else {
 							this.props.onJoplinLinkClick(msg);
 						}

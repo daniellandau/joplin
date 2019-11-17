@@ -60,6 +60,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 			fromShare: false,
 			showCamera: false,
 			noteResources: {},
+			scrollPosition: null,
 			selection: {start: 0, end: 0},
 
 			// HACK: For reasons I can't explain, when the WebView is present, the TextInput initially does not display (It's just a white rectangle with
@@ -184,6 +185,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 		this.cameraView_onCancel = this.cameraView_onCancel.bind(this);
 		this.properties_onPress = this.properties_onPress.bind(this);
 		this.onMarkForDownload = this.onMarkForDownload.bind(this);
+		this.onScrollPositionUpdated = this.onScrollPositionUpdated.bind(this);
 		this.sideMenuOptions = this.sideMenuOptions.bind(this);
 		this.folderPickerOptions_valueChanged = this.folderPickerOptions_valueChanged.bind(this);
 		this.saveNoteButton_press = this.saveNoteButton_press.bind(this);
@@ -284,6 +286,10 @@ class NoteScreenComponent extends BaseScreenComponent {
 
 	onMarkForDownload(event) {
 		ResourceFetcher.instance().markForDownload(event.resourceId);
+	}
+
+	onScrollPositionUpdated(event) {
+		this.setState({ scrollPosition: event.scrollPosition });
 	}
 
 	componentDidUpdate(prevProps) {
@@ -845,6 +851,7 @@ class NoteScreenComponent extends BaseScreenComponent {
 							onCheckboxChange(newBody);
 						}}
 						onMarkForDownload={this.onMarkForDownload}
+						onScrollPositionUpdated={this.onScrollPositionUpdated}
 						onLoadEnd={() => {
 							setTimeout(() => {
 								this.setState({ HACK_webviewLoadingState: 1 });
@@ -865,12 +872,18 @@ class NoteScreenComponent extends BaseScreenComponent {
 
 		const renderActionButton = () => {
 			let buttons = [];
-
+			const position = this.state.scrollPosition && this.state.note.body
+				? Math.round(this.state.note.body.length * this.state.scrollPosition, 0)
+				: 0;
+			const selection = { start: position, end: position };
 			buttons.push({
 				title: _('Edit'),
 				icon: 'md-create',
 				onPress: () => {
-					this.setState({ mode: 'edit', selection: { start: 0, end: 0 } });
+					this.setState({
+						mode: 'edit',
+						selection,
+					});
 
 					this.doFocusUpdate_ = true;
 					this.firstSelectionUpdateSkipped_ = false;

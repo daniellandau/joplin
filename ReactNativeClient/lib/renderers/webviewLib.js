@@ -108,3 +108,7 @@ document.addEventListener('click', function(event) {
 		if (webviewLib.handleInternalLink(event, anchor)) return;
 	}
 });
+
+document.addEventListener('scroll', function() {
+	webviewLib.options_.postMessage(`scrollPositionUpdated:${window.scrollY / document.documentElement.getBoundingClientRect().height}`);
+});
